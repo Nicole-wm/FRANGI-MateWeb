@@ -60,7 +60,9 @@ img {
 table {
   border-collapse: collapse;
 }
-body {
+html,body,.page-content,.app-init{
+  width: 100%;
+  height: 100%;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
   font-size: 16px;
   background: #fff;
@@ -77,62 +79,6 @@ body {
 .clearfix {
   *zoom: 1; /*IE/7/6*/
 }
-a {
-  color: #666;
-  text-decoration: none;
-}
-a:hover {
-  color: #c81623;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  text-decoration: none;
-  font-weight: normal;
-  font-size: 100%;
-} /*设置h标签的大小，设置跟父亲一样大的字体font-size:100%;*/
-s,
-i,
-em {
-  font-style: normal;
-  text-decoration: none;
-}
-.col-red {
-  color: #c81623 !important;
-}
-
-/*公共类*/
-.fl {
-  float: left;
-}
-.fr {
-  float: right;
-}
-.al {
-  text-align: left;
-}
-.ac {
-  text-align: center;
-}
-.ar {
-  text-align: right;
-}
-.hide {
-  display: none;
-}
-.font12 {
-  font-size: 12px;
-}
-.font14 {
-  font-size: 14px;
-}
-.font16 {
-  font-size: 16px;
-}
-
 /*******************公共部分*******************/
 /*******************头部导航开始*******************/
 
@@ -163,6 +109,6 @@ em {
   font-size: 1rem;
   margin: 0.3rem;
 }
-.footer-item .active {
-  color: #ff6700;
+.footer .router-link-active .footer-item{
+  color: #bf9b5f;
 }

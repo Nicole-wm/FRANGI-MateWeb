@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="page-content">
     <div class="app-init">
       <router-view></router-view>
     </div>
     <footer class="footer clear">
-      <router-link to="/home">
+      <router-link to="/home" tag="div">
         <div class="footer-item">
           <p class="icon">
             <span class="fa fa-database"></span>
@@ -12,7 +12,7 @@
           <p class="name">素材库</p>
         </div>
       </router-link>
-      <router-link to="/matelist">
+      <router-link to="/matelist" tag="div">
         <div class="footer-item">
           <p class="icon">
             <span class="fa fa-folder-o"></span>
@@ -25,9 +25,10 @@
 </template>
 
 <script>
-export default {};
+export default {
+};
 </script>
 
-<style scoped>
+<style>
 @import "./assets/css/public.css";
 </style>

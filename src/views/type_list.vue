@@ -2,7 +2,7 @@
     <div class="typeContent">
         <div class="catediv">
             <ul class="cateUl">
-                <li v-for="item in catelist" @click="selectCate(item)" :class="{'cli_active':item.active===true}" v-bind:key="item.id">{{item.catename}}</li>
+                <li v-for="item in catelist" @click="selectCate(item)" :class="{'cli_active':item.active===true}" v-bind:key="item.id">{{item.cname}}</li>
             </ul>
         </div>
         <div class="typediv">
@@ -26,19 +26,23 @@ export default {
         return {
             active: false,
             catelist: [
-                { id: 1, catename: "早安晚安" },
-                { id: 2, catename: "产品知识" },
-                { id: 3, catename: "品牌实力" },
-                { id: 4, catename: "活动类" },
-                { id: 5, catename: "招商类" },
-                { id: 6, catename: "护肤知识" },
-                { id: 7, catename: "节日类" }
+                { id: 1, cname: "早安晚安" },
+                { id: 2, cname: "产品知识" },
+                { id: 3, cname: "品牌实力" },
+                { id: 4, cname: "活动类" },
+                { id: 5, cname: "招商类" },
+                { id: 6, cname: "护肤知识" },
+                { id: 7, cname: "节日类" }
             ],
             typelist:[
                 { id:1,tname:"功效",banner:"../static/json/typeBanner/1/1.jpg"},
                 { id:2,tname:"成分解析",banner:"../static/json/typeBanner/1/2.jpg"},
                 { id:3,tname:"使用方法",banner:"../static/json/typeBanner/1/3.jpg"},
-                { id:4,tname:"使用感受-个人",banner:"../static/json/typeBanner/1/4.jpg"}
+                { id:4,tname:"使用感受-个人",banner:"../static/json/typeBanner/1/4.jpg"},
+                { id:5,tname:"成分解析",banner:"../static/json/typeBanner/1/2.jpg"},
+                { id:6,tname:"使用方法",banner:"../static/json/typeBanner/1/3.jpg"},
+                { id:7,tname:"使用感受-个人",banner:"../static/json/typeBanner/1/4.jpg"},
+                { id:8,tname:"成分解析",banner:"../static/json/typeBanner/1/2.jpg"}
             ]
         };
     },
@@ -48,13 +52,18 @@ export default {
     },
 
     methods: {
-        selectCate(item) {
+        selectCate(curcate) {
+            console.log("curcate="+curcate.cname);
             this.$nextTick(function() {
-                this.catelist.forEach(function(item) {
-                    Vue.set(item, "active", false);
+                this.catelist.forEach(function(curcate) {
+                    Vue.set(curcate, "active", false);
                 });
-                Vue.set(item, "active", true);
+                Vue.set(curcate, "active", true);
             });
+        },
+        selectType(curtype){
+             console.log("curtype="+curtype.tname);
+             this.$router.push({name:'matedetails',params:{tid:curtype.tid}})
         }
     }
 };
@@ -99,5 +108,8 @@ export default {
     bottom:0.5rem;
     color: #fff;
     text-shadow:1px 1px 1px #353535;
+}
+.typediv{
+    margin-bottom:3.125rem;
 }
 </style>

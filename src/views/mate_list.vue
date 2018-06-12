@@ -1,31 +1,31 @@
 <template>
     <div class="mateList">
-        <p class="nocontent_mess">暂无素材</p>
-        <!--<div class="mateContent">
-         <div class="matediv" v-for="mate in matelist" v-bind:key="mate.id">
-            <span class="mate_name" v-html="mate.content">
-            </span>
-            <ul class="mate_img">
-                <li v-for="(item,index) in mate.posters" v-bind:key="index" v-bind:style="{backgroundImage:'url('+item+')'}" @click="clickImg(mate.posters,index)">
-                </li>
-            </ul>
-            <div class="clearfix"></div>
-            <div class="mate_hr"></div>
-            <div class="mate_opear">
-                <span class="mo_like heart" :class="{'heartAnimation':mate.islike==true}" @click="clickLike(mate)"></span>
-                <span class="mo_list">
-                    <span class="mo_down" @click="downMate(mate.id)">下载图文</span>
-                    <span class="mo_share" @click="shareMate(mate.id)">分享</span>
-                    <span class="mo_ewm" @click="makeCode(mate.id)">生成二维码</span>
+        <!-- <p class="nocontent_mess">暂无素材</p> -->
+        <div class="mateContent">
+            <div class="matediv" v-for="mate in matelist" v-bind:key="mate.id">
+                <span class="mate_name" v-html="mate.content">
                 </span>
-            </div>
-            <div class="FullScreen" v-if="isShowFScreen">
-                <slider :pages="pages" :sliderinit="sliderinit" @tap='onTap'>
-                    <div slot="loading">loading...</div>
-                </slider>
+                <ul class="mate_img">
+                    <li v-for="(item,index) in mate.posters" v-bind:key="index" v-bind:style="{backgroundImage:'url('+item+')'}" @click="clickImg(mate.posters,index)">
+                    </li>
+                </ul>
+                <div class="clearfix"></div>
+                <div class="mate_hr"></div>
+                <div class="mate_opear">
+                    <span class="mo_like heart" :class="{'heartAnimation':mate.islike==true}" @click="clickLike(mate)"></span>
+                    <span class="mo_list">
+                        <span class="mo_down" @click="downMate(mate.id)">下载图文</span>
+                        <span class="mo_share" @click="shareMate(mate.id)">分享</span>
+                        <span class="mo_ewm" @click="makeCode(mate.id)">生成二维码</span>
+                    </span>
+                </div>
+                <div class="FullScreen" v-if="isShowFScreen">
+                    <slider :pages="pages" :sliderinit="sliderinit" @tap='onTap'>
+                        <div slot="loading">loading...</div>
+                    </slider>
+                </div>
             </div>
         </div>
-        </div> -->
     </div>
 </template>
 
@@ -89,6 +89,10 @@ export default {
 
     components: {
         slider
+    },
+
+    mounted:function() {
+        this.$route.meta.navShow=false;
     },
 
     methods: {

@@ -3,7 +3,7 @@
     <div class="app-init">
       <router-view></router-view>
     </div>
-    <footer class="footer clear">
+    <footer class="footer clear" v-bind:class="{ 'leave': !$route.meta.navShow }">
       <router-link to="/home" tag="div">
         <div class="footer-item">
           <p class="icon">

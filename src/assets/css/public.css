@@ -76,8 +76,8 @@ table {
   border-collapse: collapse;
 }
 
-html,body
-{
+html,
+body {
   width: 100%;
   height: 100%;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
@@ -100,18 +100,20 @@ html,body
   *zoom: 1;
   /*IE/7/6*/
 }
-.page-content,.app-init{
+
+.page-content,
+.app-init {
   height: 100%;
   width: 100%;
 }
-.app-init{
-  margin-bottom:3.125rem; 
-}
+
 /*******************公共部分*******************/
+
 /* 点赞 */
+
 .heart {
   background: url(../../../static/img/web_heart_animation.png);
-  background-position:left;
+  background-position: left;
   background-repeat: no-repeat;
   height: 4rem;
   width: 4rem;
@@ -151,12 +153,14 @@ html,body
   background-position: right;
 }
 
-.nocontent_mess{
-  vertical-align: middle;
+.nocontent_mess {
+  padding-top: 3.5rem;
   text-align: center;
-  font-size:1.2rem;
+  font-size: 1.2rem;
 }
+
 /*******************底部部导航开始*******************/
+
 .footer {
   position: fixed;
   width: 100%;
@@ -187,6 +191,10 @@ html,body
 
 .footer .router-link-active .footer-item {
   color: #bf9b5f;
+} 
+
+.footer.leave {
+  transform: translateY(100%)
 }
 
 @media screen and (max-width:375px) {

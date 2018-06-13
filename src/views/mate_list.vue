@@ -1,7 +1,7 @@
 <template>
     <div class="mateList">
-        <!-- <p class="nocontent_mess">暂无素材</p> -->
-        <div class="mateContent">
+        <p v-if="ShowMateFlag" class="nocontent_mess">暂无素材</p>
+        <div class="mateContent" v-if="!ShowMateFlag">
             <div class="matediv" v-for="mate in matelist" v-bind:key="mate.id">
                 <span class="mate_name" v-html="mate.content">
                 </span>
@@ -37,6 +37,9 @@ export default {
     name: "matelist",
     data() {
         return {
+            ShowMateFlag: true,
+            currentPage: 1,
+            pageSize: 5,
             isShowFScreen: false,
             pages: [],
             sliderinit: {
@@ -47,43 +50,9 @@ export default {
                 infinite: 1,
                 slidesToScroll: 1
             },
-            matelist: [
-                {
-                    id: 1,
-                    content:
-                        "<h2><b>女神水功效和成分</b></h2><h5><span>十大无添加，八大功效，四大成分。</span></h5>",
-                    posters: [
-                        "../static/json/mateImg/1/1.jpg",
-                        "../static/json/mateImg/1/2.jpg",
-                        "../static/json/mateImg/1/3.jpg",
-                        "../static/json/mateImg/1/4.jpg"
-                    ]
-                },
-                {
-                    id: 2,
-                    content: "<h3>女神水设计大奖~</h3><p>恭喜恭喜</p>",
-                    posters: [
-                        "../static/json/mateImg/1/2.jpg",
-                        "../static/json/mateImg/1/3.jpg",
-                        "../static/json/mateImg/1/4.jpg",
-                        "../static/json/mateImg/1/1.jpg"
-                    ]
-                },
-                {
-                    id: 3,
-                    content: "<h3>【女神水大牌PK，看过来】</h3>",
-                    posters: [
-                        "../static/json/mateImg/1/2.jpg",
-                        "../static/json/mateImg/1/1.jpg"
-                    ]
-                },
-                {
-                    id: 4,
-                    content:
-                        "<h3>女神水使用Tips</h3><p>1.取化妆棉</p><p>2.按压</p><p>3.擦拭</p>",
-                    posters: ["../static/json/mateImg/1/3.jpg"]
-                }
-            ]
+            matelist: [],
+            GetMateUrl: "/api/mate/mate_list.php",
+            UpdateMateUrl: "/api/mate/mate_update.php"
         };
     },
 
@@ -91,12 +60,102 @@ export default {
         slider
     },
 
-    mounted:function() {
-        this.$route.meta.navShow=false;
+    mounted: function() {
+        this.$route.meta.navShow = true;
+        this.GetMateList();
     },
 
     methods: {
+        refresh: function(done) {
+            var self = this;
+            setTimeout(function() {
+                var start = self.top - 1;
+                for (var i = start; i > start - 10; i--) {
+                    self.items.splice(
+                        0,
+                        0,
+                        i + " - keep walking, be 2 with you."
+                    );
+                }
+                self.top = self.top - 10;
+                done();
+            }, 1500);
+        },
+
+        infinite: function(done) {
+            var self = this;
+            setTimeout(function() {
+                var start = self.bottom + 1;
+                for (var i = start; i < start + 10; i++) {
+                    self.items.push(i + " - keep walking, be 2 with you.");
+                }
+                self.bottom = self.bottom + 10;
+                done();
+            }, 1500);
+        },
+
+        InitPage: function(currentPage) {
+            var params = {};
+            return (params = {
+                page: this.currentPage,
+                limit: this.pageSize
+            });
+        },
+        GetMateList: function(params) {
+            var params = params;
+            if (!params) {
+                params = this.InitPage(1);
+            } else {
+                params = params;
+            }
+            if (this.$route.params.tid) {
+                this.$route.meta.navShow = false;
+                this.$route.meta.title = "FRANGI_" + this.$route.params.tname;
+                params["typeID"] = this.$route.params.tid;
+            }
+
+            this.$http.get(this.GetMateUrl, { params: params }).then(
+                response => {
+                    if (response.data.code == 1) {
+                        this.typelist = [];
+                        let CurMateList = response.data.data.results;
+                        if (
+                            CurMateList === undefined ||
+                            CurMateList.length == 0
+                        ) {
+                            this.ShowMateFlag = true;
+                        } else {
+                            this.ShowMateFlag = false;
+                            for (let i = 0; i < CurMateList.length; i++) {
+                                CurMateList[i].posters = CurMateList[i].posters;
+                                this.matelist.push(CurMateList[i]);
+                            }
+                        }
+                    } else {
+                        console.log("Server Error");
+                    }
+                },
+                response => {
+                    console.log("Error");
+                }
+            );
+        },
         clickLike(item) {
+            let params = {
+                id: item.id,
+                type: item.islike
+            };
+            this.$http.get(this.UpdateMateUrl, { params: params }).then(
+                response => {
+                    if (response.data.code == 1) {
+                    } else {
+                        console.log("Server Error");
+                    }
+                },
+                response => {
+                    console.log("Error");
+                }
+            );
             if (item.islike) {
                 console.log("点赞-1啦");
                 Vue.set(item, "islike", false);

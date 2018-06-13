@@ -3,6 +3,13 @@
 	include('../conn.php');
 
 	if($select){
+		class type {
+			public $id = "";
+			public $tname  = "";
+			public $cateid  = "";
+			public $banner  = "";
+		}
+
 		$array=[];
 		$cateID=$_GET['cateID'];
 		if($cateID){
@@ -12,7 +19,12 @@
 		}
 
 		while($rows = mysql_fetch_array($query)){
-			$array[] = $rows;
+			$newItemType=new type();
+			$newItemType->id=$rows['id'];
+			$newItemType->tname=$rows['tname'];
+			$newItemType->cateid=$rows['cateid'];
+			$newItemType->banner="http://cms.frangi.cn".$rows['banner'];
+			$array[] = $newItemType;
 		}
 		Response::json(1,'获取素材类型列表成功！',$array);
 	}else{

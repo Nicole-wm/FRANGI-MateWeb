@@ -3,20 +3,19 @@
 	include('../conn.php');
 
 	if($select){
-		$content = file_get_contents("php://input");
-	    $obj=json_decode($content);
-		$id = $obj->{'id'};
-		$cateid = $obj->{'cateid'};
-		$typeid = $obj->{'typeid'};
-		$content = html_entity_decode($obj->{'content'});
-		$posters = json_encode($obj->{'posters'});
+		$id=$_GET['id'];
+		$type=$_GET['type'];
 
-		$exec="update mate_list set cateid='$cateid',typeid='$typeid',content='$content',posters='$posters' where id='$id'";
+		if($type == "true"){
+			$exec="update mate_list set likecount=likecount+1 where id='$id'";
+		}else{
+			$exec="update mate_list set likecount=likecount-1 where id='$id'";
+		}
 		$result=mysql_query($exec);
 		if($result){
-			Response::json(1,'添加成功！','');
+			Response::json(1,'修改成功！','');
 		}else{
-			Response::json(0,'添加失败，重新添加！','');
+			Response::json(0,'修改失败，重新添加！','');
 		}
 	}else{
 		Response::json(0,'Server Error！');   

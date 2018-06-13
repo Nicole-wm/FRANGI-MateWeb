@@ -3,12 +3,12 @@ header("Content-type:text/html;charset=utf-8");
 include('../conn.php');
 
 if($select){
-	$array=[];
-	if(isset($_GET['cateID'])){
-		$cateID = $_GET['cateID'];
-	}else{
-		$cateID = "";
+	class mate {
+		public $id = "";
+		public $content  = "";
+		public $posters  = "";
 	}
+	$array=[];
 	if(isset($_GET['typeID'])){
 		$typeID = $_GET['typeID'];
 	}else{
@@ -26,9 +26,9 @@ if($select){
 	}
 
 	// 获取总数据量
-	if($cateID&&$typeID){
-		$query = "select count(*) as amount from mate_list where deleted='0' and cateID=".$cateID." and typeID=".$typeID; 
-		$sql = "select * from mate_list where deleted='0' and cateID=".$cateID." and typeID=".$typeID." order by id desc limit ". ($page-1)*$limit .", $limit";
+	if($typeID){
+		$query = "select count(*) as amount from mate_list where deleted='0' and typeID=".$typeID; 
+		$sql = "select * from mate_list where deleted='0' and typeID=".$typeID." order by id desc limit ". ($page-1)*$limit .", $limit";
 	}else{
 		$query = "select count(*) as amount from mate_list where deleted='0'"; 
 		$sql = "select * from mate_list where deleted='0' order by id desc limit ". ($page-1)*$limit .", $limit";
@@ -42,7 +42,17 @@ if($select){
 	if($count){
 		$result = mysql_query($sql);
 		while ($row = mysql_fetch_array($result)){
-			$results[] = $row;
+			$newItemMate=new mate();
+			$newItemMate->id=$row['id'];
+			$newItemMate->content=$row['content'];
+			$newArr=[];
+			$curposter=json_decode($row['posters']);
+			$num = count($curposter); 
+			for($i=0;$i<$num;++$i){ 
+				$newArr[]="http://cms.frangi.cn".$curposter[$i]; 
+			}
+			$newItemMate->posters=$newArr;
+			$results[] = $newItemMate;
 		}
 	}else{
 		$results = array();

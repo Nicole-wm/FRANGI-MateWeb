@@ -5,6 +5,9 @@ import App from './App'
 import router from './router'
 import VueLazyLoad from 'vue-lazyload'
 import axios from 'axios'
+import VueScroller from 'vue-scroller'
+
+Vue.use(VueScroller)
 
 Vue.prototype.$http = axios
 

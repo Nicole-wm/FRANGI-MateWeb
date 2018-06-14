@@ -14,6 +14,11 @@ if($select){
 	}else{
 		$typeID = "";
 	}
+	if(isset($_GET['mateID'])){
+		$mateID = $_GET['mateID'];
+	}else{
+		$mateID = "";
+	}
 	if(isset($_GET['page'])){
 		$page = intval($_GET['page']);
 	}else{
@@ -26,13 +31,19 @@ if($select){
 	}
 
 	// 获取总数据量
-	if($typeID){
-		$query = "select count(*) as amount from mate_list where deleted='0' and typeID=".$typeID; 
-		$sql = "select * from mate_list where deleted='0' and typeID=".$typeID." order by id desc limit ". ($page-1)*$limit .", $limit";
+	if($mateID){
+		$query = "select count(*) as amount from mate_list where deleted='0' and id=".$mateID; 
+		$sql = "select * from mate_list where deleted='0' and id=".$mateID." order by id desc limit ". ($page-1)*$limit .", $limit";
 	}else{
-		$query = "select count(*) as amount from mate_list where deleted='0'"; 
-		$sql = "select * from mate_list where deleted='0' order by id desc limit ". ($page-1)*$limit .", $limit";
+		if($typeID){
+			$query = "select count(*) as amount from mate_list where deleted='0' and typeid=".$typeID; 
+			$sql = "select * from mate_list where deleted='0' and typeid=".$typeID." order by id desc limit ". ($page-1)*$limit .", $limit";
+		}else{
+			$query = "select count(*) as amount from mate_list where deleted='0'"; 
+			$sql = "select * from mate_list where deleted='0' order by id desc limit ". ($page-1)*$limit .", $limit";
+		}
 	}
+	
 	$result = mysql_query($query);
 	/*$row = mysql_fetch_row($result);
 	$amount = $row['amount'];*/

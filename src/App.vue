@@ -12,7 +12,7 @@
           <p class="name">素材库</p>
         </div>
       </router-link>
-      <router-link to="/matelist" tag="div">
+      <router-link to="/matelist/all/all" tag="div">
         <div class="footer-item">
           <p class="icon">
             <span class="fa fa-folder-o"></span>
@@ -25,8 +25,7 @@
 </template>
 
 <script>
-export default {
-};
+export default {};
 </script>
 
 <style>

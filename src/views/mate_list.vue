@@ -2,28 +2,30 @@
     <div class="mateList">
         <p v-if="ShowMateFlag" class="nocontent_mess">暂无素材</p>
         <div class="mateContent" v-if="!ShowMateFlag">
-            <div class="matediv" v-for="mate in matelist" v-bind:key="mate.id">
-                <span class="mate_name" v-html="mate.content">
-                </span>
-                <ul class="mate_img">
-                    <li v-for="(item,index) in mate.posters" v-bind:key="index" v-bind:style="{backgroundImage:'url('+item+')'}" @click="clickImg(mate.posters,index)">
-                    </li>
-                </ul>
-                <div class="clearfix"></div>
-                <div class="mate_hr"></div>
-                <div class="mate_opear">
-                    <span class="mo_like heart" :class="{'heartAnimation':mate.islike==true}" @click="clickLike(mate)"></span>
-                    <span class="mo_list">
-                        <span class="mo_down" @click="downMate(mate.id)">下载图文</span>
-                        <span class="mo_share" @click="shareMate(mate.id)">分享</span>
-                        <span class="mo_ewm" @click="makeCode(mate.id)">生成二维码</span>
+            <scroller :on-refresh="refresh" :on-infinite="infinite" ref="my_scroller">
+                <div class="matediv" v-for="mate in matelist" v-bind:key="mate.id">
+                    <span class="mate_name" v-html="mate.content">
                     </span>
+                    <ul class="mate_img">
+                        <li v-for="(item,index) in mate.posters" v-bind:key="index" v-bind:style="{backgroundImage:'url('+item+')'}" @click="clickImg(mate.posters,index)">
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                    <div class="mate_hr"></div>
+                    <div class="mate_opear">
+                        <span class="mo_like heart" :class="{'heartAnimation':mate.islike==true}" @click="clickLike(mate)"></span>
+                        <span class="mo_list">
+                            <span class="mo_down" @click="downMate(mate.id)">下载图文</span>
+                            <span class="mo_share" @click="shareMate(mate.id)">分享</span>
+                            <span class="mo_ewm" @click="makeCode(mate.id)">生成二维码</span>
+                        </span>
+                    </div>
                 </div>
-                <div class="FullScreen" v-if="isShowFScreen">
-                    <slider :pages="pages" :sliderinit="sliderinit" @tap='onTap'>
-                        <div slot="loading">loading...</div>
-                    </slider>
-                </div>
+            </scroller>
+            <div class="FullScreen" v-if="isShowFScreen">
+                <slider :pages="pages" :sliderinit="sliderinit" @tap='onTap'>
+                    <div slot="loading">loading...</div>
+                </slider>
             </div>
         </div>
     </div>
@@ -38,6 +40,7 @@ export default {
     data() {
         return {
             ShowMateFlag: true,
+            totalPage: 1,
             currentPage: 1,
             pageSize: 5,
             isShowFScreen: false,
@@ -60,8 +63,14 @@ export default {
         slider
     },
 
+    created: function() {
+        if (this.$route.params.tid) {
+            document.title = "FRANGI_" + this.$route.params.tname;
+        } else {
+        }
+    },
+
     mounted: function() {
-        this.$route.meta.navShow = true;
         this.GetMateList();
     },
 
@@ -69,29 +78,25 @@ export default {
         refresh: function(done) {
             var self = this;
             setTimeout(function() {
-                var start = self.top - 1;
-                for (var i = start; i > start - 10; i--) {
-                    self.items.splice(
-                        0,
-                        0,
-                        i + " - keep walking, be 2 with you."
-                    );
-                }
-                self.top = self.top - 10;
+                self.currentPage = 1;
+                self.GetMateList();
                 done();
             }, 1500);
         },
 
         infinite: function(done) {
             var self = this;
-            setTimeout(function() {
-                var start = self.bottom + 1;
-                for (var i = start; i < start + 10; i++) {
-                    self.items.push(i + " - keep walking, be 2 with you.");
-                }
-                self.bottom = self.bottom + 10;
-                done();
-            }, 1500);
+            if (self.currentPage < self.totalPage) {
+                setTimeout(function() {
+                    self.GetMateList(self.InitPage(self.currentPage));
+                    done();
+                }, 1500);
+            } else {
+                setTimeout(() => {
+                    this.$refs.my_scroller.finishInfinite(2);
+                });
+                return;
+            }
         },
 
         InitPage: function(currentPage) {
@@ -104,21 +109,31 @@ export default {
         GetMateList: function(params) {
             var params = params;
             if (!params) {
+                this.matelist = [];
                 params = this.InitPage(1);
             } else {
                 params = params;
             }
-            if (this.$route.params.tid) {
-                this.$route.meta.navShow = false;
-                this.$route.meta.title = "FRANGI_" + this.$route.params.tname;
-                params["typeID"] = this.$route.params.tid;
+
+            let CurTID = this.$route.params.tid*1;
+            let CurMID = this.$route.params.mid*1;
+
+            console.log(CurTID);
+            console.log(CurMID);
+            if (!isNaN(CurTID)) {
+                params["typeID"] = CurTID;
+            }
+            if (!isNaN(CurMID)) {
+                params["mateID"] = CurMID;
             }
 
             this.$http.get(this.GetMateUrl, { params: params }).then(
                 response => {
                     if (response.data.code == 1) {
-                        this.typelist = [];
+                        let mateCount = response.data.data.count;
                         let CurMateList = response.data.data.results;
+                        this.totalPage = Math.ceil(mateCount / this.pageSize);
+
                         if (
                             CurMateList === undefined ||
                             CurMateList.length == 0
@@ -130,6 +145,7 @@ export default {
                                 CurMateList[i].posters = CurMateList[i].posters;
                                 this.matelist.push(CurMateList[i]);
                             }
+                            this.currentPage++;
                         }
                     } else {
                         console.log("Server Error");
@@ -191,6 +207,9 @@ export default {
 </script>
 
 <style>
+.mateContent {
+    padding-bottom: 3rem;
+}
 .mateList {
     height: 100%;
     width: 100%;
@@ -198,6 +217,7 @@ export default {
 }
 .mateContent {
     width: 100%;
+    height: 100%;
     background-color: #f8f8f8;
     padding: 5% 0;
 }
@@ -277,9 +297,10 @@ export default {
     height: 100%;
     width: 100%;
     background-color: #000;
-    z-index: 500;
+    z-index: 9999;
 }
 .FullScreen .slider-item {
+    z-index: 9999;
     background-repeat: no-repeat !important;
     background-position: center !important;
     background-size: contain !important;

@@ -21,7 +21,7 @@ export default new Router({
       }
     },
     {
-      path: '/matelist',
+      path: '/matelist/:tid/:mid',
       name: 'matelist',
       meta: {
         navShow: true,
@@ -51,7 +51,8 @@ export default new Router({
       },
       component(resolve) {
         require(['@/views/error/110.vue'], resolve)
-      }
+      },
     }
   ]
 })
+

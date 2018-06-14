@@ -109,7 +109,7 @@ export default {
         selectType(curtype) {
             this.$router.push({
                 name: "matelist",
-                params: { tid: curtype.id,tname: curtype.tname }
+                params: { tid: curtype.id,mid:"all",tname: curtype.tname}
             });
         }
     }

@@ -21,7 +21,7 @@ export default new Router({
       }
     },
     {
-      path: '/matelist/:tid/:mid',
+      path: '/matelist/:tid?/:mid?',
       name: 'matelist',
       meta: {
         navShow: true,

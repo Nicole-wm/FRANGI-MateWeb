@@ -22,10 +22,16 @@
                     </div>
                 </div>
             </scroller>
-            <div class="FullScreen" v-if="isShowFScreen">
-                <slider :pages="pages" :sliderinit="sliderinit" @tap='onTap'>
-                    <div slot="loading">loading...</div>
-                </slider>
+        </div>
+        <div class="FullScreen" v-if="isShowFScreen">
+            <slider :pages="pages" :sliderinit="sliderinit" @tap='onTap'>
+                <div slot="loading">loading...</div>
+            </slider>
+        </div>
+        <div class="qrCode" v-if="isShowFCode" @click='onTapCode'>
+            <div class="qrCode_content">
+                <img class="qrCode_img" src="/static/img/codebg.jpg" alt="cdbg">
+                <qriously class="qrCode_code" :value="initQCode" :size="codeSize" />
             </div>
         </div>
     </div>
@@ -34,6 +40,8 @@
 <script>
 import Vue from "vue";
 import slider from "vue-concise-slider";
+import VueQriously from "vue-qriously";
+Vue.use(VueQriously);
 
 export default {
     name: "matelist",
@@ -44,6 +52,7 @@ export default {
             currentPage: 1,
             pageSize: 5,
             isShowFScreen: false,
+            isShowFCode: true,
             pages: [],
             sliderinit: {
                 direction: "horizontal",
@@ -55,7 +64,9 @@ export default {
             },
             matelist: [],
             GetMateUrl: "/api/mate/mate_list.php",
-            UpdateMateUrl: "/api/mate/mate_update.php"
+            UpdateMateUrl: "/api/mate/mate_update.php",
+            initQCode: "http://mateweb.frangi.cn",
+            codeSize: 150
         };
     },
 
@@ -64,9 +75,8 @@ export default {
     },
 
     created: function() {
-        if (this.$route.params.tid) {
+        if (this.$route.params.tname) {
             document.title = "FRANGI_" + this.$route.params.tname;
-        } else {
         }
     },
 
@@ -115,11 +125,9 @@ export default {
                 params = params;
             }
 
-            let CurTID = this.$route.params.tid*1;
-            let CurMID = this.$route.params.mid*1;
+            let CurTID = this.$route.params.tid * 1;
+            let CurMID = this.$route.params.mid * 1;
 
-            console.log(CurTID);
-            console.log(CurMID);
             if (!isNaN(CurTID)) {
                 params["typeID"] = CurTID;
             }
@@ -194,10 +202,16 @@ export default {
             this.isShowFScreen = false;
         },
         shareMate(curId) {
-            console.log("分享素材啦！mateId = " + curId);
+            let shareUrl = "http://mateweb.frangi.cn/matelist/all/" + curId;
+            console.log("分享素材啦！shareUrl = " + shareUrl);
         },
         makeCode(curId) {
-            console.log("生成二维码啦！mateId = " + curId);
+            this.initQCode = "http://mateweb.frangi.cn/matelist/all/" + curId;
+            this.isShowFCode = true;
+            console.log("生成二维码啦！Url = " + this.initQCode);
+        },
+        onTapCode(data) {
+            this.isShowFCode = false;
         },
         downMate(curId) {
             console.log("下载素材啦！mateId = " + curId);
@@ -289,7 +303,8 @@ export default {
     width: 2rem;
     font-size: 1.4rem;
 }
-.FullScreen {
+.FullScreen,
+.qrCode {
     position: fixed;
     top: 0;
     left: 0;
@@ -305,4 +320,36 @@ export default {
     background-position: center !important;
     background-size: contain !important;
 }
+.qrCode {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #f0f3f2;
+    z-index: 10000;
+}
+.qrCode .qrCode_content {
+    width: 100%;
+}
+.qrCode_content .qrCode_img {
+    width: 100%;
+}
+.qrCode_content .qrCode_code canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.75;
+}
+/* .qrCode .cdbg {
+    width: 100%;
+}
+.qrCode .codeimg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background-color: #000;
+} */
 </style>

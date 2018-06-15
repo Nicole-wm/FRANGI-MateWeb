@@ -12,6 +12,8 @@
   "dependencies": {
     "axios": "^0.18.0",
     "css-loader": "^0.28.11",
+    "qrcode": "^1.2.0",
+    "qrcodejs2": "^0.0.2",
     "stylus": "^0.54.5",
     "vue": "^2.5.2",
     "vue-axios": "^2.1.1",
@@ -57,6 +59,7 @@
     "url-loader": "^0.5.8",
     "vue-lazyload": "^1.2.4",
     "vue-loader": "^13.3.0",
+    "vue-qriously": "^1.1.1",
     "vue-style-loader": "^3.0.1",
     "vue-template-compiler": "^2.5.2",
     "webpack": "^3.12.0",

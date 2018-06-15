@@ -222,7 +222,7 @@ export default {
 
 <style>
 .mateContent {
-    padding-bottom: 3rem;
+    /* padding-bottom: 3rem; */
 }
 .mateList {
     height: 100%;
@@ -233,7 +233,7 @@ export default {
     width: 100%;
     height: 100%;
     background-color: #f8f8f8;
-    padding: 5% 0;
+    /* padding: 5% 0; */
 }
 .matediv {
     background-color: #ffffff;
@@ -321,7 +321,7 @@ export default {
     background-size: contain !important;
 }
 .qrCode {
-    position: fixed;
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);

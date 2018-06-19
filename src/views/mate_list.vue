@@ -31,7 +31,7 @@
         <div class="qrCode" v-if="isShowFCode" @click='onTapCode'>
             <div class="qrCode_content">
                 <img class="qrCode_img" src="/static/img/codebg.jpg" alt="cdbg">
-                <qriously class="qrCode_code" :value="initQCode" :size="codeSize" />
+                <qriously class="qrCode_code" :value="initUrl" :size="codeSize" />
             </div>
         </div>
     </div>
@@ -52,7 +52,7 @@ export default {
             currentPage: 1,
             pageSize: 5,
             isShowFScreen: false,
-            isShowFCode: true,
+            isShowFCode: false,
             pages: [],
             sliderinit: {
                 direction: "horizontal",
@@ -65,8 +65,8 @@ export default {
             matelist: [],
             GetMateUrl: "/api/mate/mate_list.php",
             UpdateMateUrl: "/api/mate/mate_update.php",
-            initQCode: "http://mateweb.frangi.cn",
-            codeSize: 150
+            initUrl: window.location.host,
+            codeSize: screen.width/3
         };
     },
 
@@ -202,19 +202,19 @@ export default {
             this.isShowFScreen = false;
         },
         shareMate(curId) {
-            let shareUrl = "http://mateweb.frangi.cn/matelist/all/" + curId;
-            console.log("分享素材啦！shareUrl = " + shareUrl);
+            let shareUrl = this.initUrl+"/matelist/all/" + curId;
+            // console.log("分享素材啦！shareUrl = " + shareUrl);
         },
         makeCode(curId) {
-            this.initQCode = "http://mateweb.frangi.cn/matelist/all/" + curId;
+            let shareUrl = this.initUrl+"/matelist/all/" + curId;
             this.isShowFCode = true;
-            console.log("生成二维码啦！Url = " + this.initQCode);
+            // console.log("生成二维码啦！Url = " + shareUrl);
         },
         onTapCode(data) {
             this.isShowFCode = false;
         },
         downMate(curId) {
-            console.log("下载素材啦！mateId = " + curId);
+            // console.log("下载素材啦！mateId = " + curId);
         }
     }
 };
@@ -329,6 +329,7 @@ export default {
     z-index: 10000;
 }
 .qrCode .qrCode_content {
+    position: relative;
     width: 100%;
 }
 .qrCode_content .qrCode_img {

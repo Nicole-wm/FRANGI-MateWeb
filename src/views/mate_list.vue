@@ -28,11 +28,11 @@
                 <div slot="loading">loading...</div>
             </slider>
         </div>
-        <div class="qrCode" v-if="isShowFCode" @click='onTapCode'>
-            <div class="qrCode_content">
-                <img class="qrCode_img" src="/static/img/codebg.jpg" alt="cdbg">
-                <qriously class="qrCode_code" :value="initUrl" :size="codeSize" />
-            </div>
+        <div class="qrCode" v-if="isShowFCode">
+            <qriously class="qrCode_code" id="curcode" :value="initUrl" :size="codeSize" />
+        </div>
+        <div class="QCImgDiv" v-bind:class="{ 'QCImgDivShow':isShowFCode}" @click='onTapCode'>
+            <canvas id="QCImg"></canvas>
         </div>
     </div>
 </template>
@@ -41,6 +41,7 @@
 import Vue from "vue";
 import slider from "vue-concise-slider";
 import VueQriously from "vue-qriously";
+
 Vue.use(VueQriously);
 
 export default {
@@ -66,7 +67,7 @@ export default {
             GetMateUrl: "/api/mate/mate_list.php",
             UpdateMateUrl: "/api/mate/mate_update.php",
             initUrl: window.location.host,
-            codeSize: screen.width/3
+            codeSize: screen.width / 3
         };
     },
 
@@ -93,7 +94,6 @@ export default {
                 done();
             }, 1500);
         },
-
         infinite: function(done) {
             var self = this;
             if (self.currentPage < self.totalPage) {
@@ -108,7 +108,6 @@ export default {
                 return;
             }
         },
-
         InitPage: function(currentPage) {
             var params = {};
             return (params = {
@@ -202,16 +201,62 @@ export default {
             this.isShowFScreen = false;
         },
         shareMate(curId) {
-            let shareUrl = this.initUrl+"/matelist/all/" + curId;
-            // console.log("分享素材啦！shareUrl = " + shareUrl);
+            let shareUrl = this.initUrl + "/matelist/all/" + curId;
+            let sharedata = {
+                link: shareUrl
+            };
+            this.wxapi.ShareContent(sharedata);
         },
         makeCode(curId) {
-            let shareUrl = this.initUrl+"/matelist/all/" + curId;
+            let shareUrl = this.initUrl + "/matelist/all/" + curId;
+            this.initUrl=shareUrl;
             this.isShowFCode = true;
+            var oC = document.getElementById("QCImg");
+            var curw = screen.width;
+            var curh = screen.height;
+            oC.width = curw;
+            oC.height = curh;
+            var oGC = oC.getContext("2d");
+            var yImg = new Image();
+            yImg.onload = function() {
+                var imgW = this.width;
+                var imgH = this.height;
+                if (curw < imgW) {
+                    oC.width = curw;
+                    oC.height = curw * imgH / imgW;
+                } else {
+                    oC.width = imgW;
+                    oC.height = imgH;
+                }
+                draw(this);
+            };
+
+            yImg.src = "/static/img/codebg.jpg";
+
+            function draw(obj) {
+                var code_width = oC.width / 3;
+                var code_height = code_width;
+                var code_xcenter = (oC.width - code_width) / 2;
+                var code_ycenter = (oC.height - code_height) / 2;
+                oGC.drawImage(obj, 0, 0, oC.width, oC.height);
+                let ccdcanvas = document.getElementById("curcode").getElementsByTagName("canvas")[0];
+                oGC.drawImage(
+                    ccdcanvas,
+                    code_xcenter,
+                    code_ycenter,
+                    code_width,
+                    code_height
+                );
+            }
+
             // console.log("生成二维码啦！Url = " + shareUrl);
         },
         onTapCode(data) {
+            // this.$refs.nqrCode.innerHTML = "";
             this.isShowFCode = false;
+            var c = document.getElementById("QCImg");
+            var cxt = c.getContext("2d");
+            cxt.clearRect(0, 0, c.width, c.height);
         },
         downMate(curId) {
             // console.log("下载素材啦！mateId = " + curId);
@@ -304,7 +349,7 @@ export default {
     font-size: 1.4rem;
 }
 .FullScreen,
-.qrCode {
+.QCImgDivShow {
     position: fixed;
     top: 0;
     left: 0;
@@ -320,37 +365,46 @@ export default {
     background-position: center !important;
     background-size: contain !important;
 }
-.qrCode {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.QCImgDiv {
+    display: none;
     background-color: #f0f3f2;
     z-index: 10000;
+}
+.QCImgDivShow {
+    display: block;
+}
+/* .nqrCode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 0;
+}
+.nqrCodeShow {
+    height: 100%;
+    background-color: #f0f3f2;
+    z-index: 10000;
+} 
+.qrCode {
+    background-color: #f0f3f2;
+    z-index: 10000;
+}
+.qrCode_content {
+    position: relative;
+    width: 100%;
 }
 .qrCode .qrCode_content {
     position: relative;
     width: 100%;
 }
-.qrCode_content .qrCode_img {
+.qrCode_img {
     width: 100%;
+    height: 100%;
 }
-.qrCode_content .qrCode_code canvas {
+.qrCode_code {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     opacity: 0.75;
-}
-/* .qrCode .cdbg {
-    width: 100%;
-}
-.qrCode .codeimg {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    background-color: #000;
-} */
+}*/
 </style>

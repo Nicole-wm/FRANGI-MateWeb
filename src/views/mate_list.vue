@@ -16,12 +16,16 @@
                         <span class="mo_like heart" :class="{'heartAnimation':mate.islike==true}" @click="clickLike(mate)"></span>
                         <span class="mo_list">
                             <span class="mo_down" @click="downMate(mate.id)">下载图文</span>
-                            <span class="mo_share" @click="shareMate(mate.id)">分享</span>
+                            <span class="mo_share" @click="shareMate(mate)">分享</span>
                             <span class="mo_ewm" @click="makeCode(mate.id)">生成二维码</span>
                         </span>
                     </div>
                 </div>
+                <button style="opacity:0;" class="cmate_btn" ref="cmate_btn">Copy</button>
             </scroller>
+        </div>
+        <div class="FullShare" v-if="isShowFShare">
+            <img src="/static/img/wxshare.png" alt="分享" @click='onShareTap'>
         </div>
         <div class="FullScreen" v-if="isShowFScreen">
             <slider :pages="pages" :sliderinit="sliderinit" @tap='onTap'>
@@ -41,6 +45,7 @@
 import Vue from "vue";
 import slider from "vue-concise-slider";
 import VueQriously from "vue-qriously";
+import Clipboard from "clipboard";
 
 Vue.use(VueQriously);
 
@@ -53,6 +58,7 @@ export default {
             currentPage: 1,
             pageSize: 5,
             isShowFScreen: false,
+            isShowFShare: false,
             isShowFCode: false,
             pages: [],
             sliderinit: {
@@ -66,6 +72,7 @@ export default {
             matelist: [],
             GetMateUrl: "/api/mate/mate_list.php",
             UpdateMateUrl: "/api/mate/mate_update.php",
+            DownMateUrl: "/api/mate/mate_down.php",
             initUrl: window.location.host,
             codeSize: screen.width / 3
         };
@@ -83,10 +90,12 @@ export default {
 
     mounted: function() {
         this.GetMateList();
+        this.CopyMate("FRANGI");
     },
 
     methods: {
         refresh: function(done) {
+            //下拉刷新
             var self = this;
             setTimeout(function() {
                 self.currentPage = 1;
@@ -95,6 +104,7 @@ export default {
             }, 1500);
         },
         infinite: function(done) {
+            //上拉加载更多
             var self = this;
             if (self.currentPage < self.totalPage) {
                 setTimeout(function() {
@@ -109,6 +119,7 @@ export default {
             }
         },
         InitPage: function(currentPage) {
+            //初始化素材数据
             var params = {};
             return (params = {
                 page: this.currentPage,
@@ -116,6 +127,7 @@ export default {
             });
         },
         GetMateList: function(params) {
+            //获取素材
             var params = params;
             if (!params) {
                 this.matelist = [];
@@ -164,6 +176,7 @@ export default {
             );
         },
         clickLike(item) {
+            //素材点赞喜欢
             let params = {
                 id: item.id,
                 type: item.islike
@@ -188,6 +201,7 @@ export default {
             }
         },
         clickImg(posters, index) {
+            //素材9宫格展示
             var _this = this;
             this.pages = [];
             posters.forEach(function(item) {
@@ -198,18 +212,27 @@ export default {
             this.isShowFScreen = true;
         },
         onTap(data) {
+            //素材9宫格关闭
             this.isShowFScreen = false;
         },
-        shareMate(curId) {
-            let shareUrl = this.initUrl + "/matelist/all/" + curId;
+        shareMate(curMate) {
+            //分享素材
+            let shareUrl = this.initUrl + "/matelist/all/" + curMate.id;
             let sharedata = {
+                desc: curMate.content.replace(/<[^>]*>|/g, ""),
                 link: shareUrl
             };
             this.wxapi.ShareContent(sharedata);
+            this.isShowFShare = true;
+        },
+        onShareTap(data) {
+            //素材微信分享
+            this.isShowFShare = false;
         },
         makeCode(curId) {
+            //生成二维码
             let shareUrl = this.initUrl + "/matelist/all/" + curId;
-            this.initUrl=shareUrl;
+            this.initUrl = shareUrl;
             this.isShowFCode = true;
             var oC = document.getElementById("QCImg");
             var curw = screen.width;
@@ -230,16 +253,16 @@ export default {
                 }
                 draw(this);
             };
-
             yImg.src = "/static/img/codebg.jpg";
-
             function draw(obj) {
                 var code_width = oC.width / 3;
                 var code_height = code_width;
                 var code_xcenter = (oC.width - code_width) / 2;
                 var code_ycenter = (oC.height - code_height) / 2;
                 oGC.drawImage(obj, 0, 0, oC.width, oC.height);
-                let ccdcanvas = document.getElementById("curcode").getElementsByTagName("canvas")[0];
+                let ccdcanvas = document
+                    .getElementById("curcode")
+                    .getElementsByTagName("canvas")[0];
                 oGC.drawImage(
                     ccdcanvas,
                     code_xcenter,
@@ -248,18 +271,53 @@ export default {
                     code_height
                 );
             }
-
-            // console.log("生成二维码啦！Url = " + shareUrl);
         },
         onTapCode(data) {
-            // this.$refs.nqrCode.innerHTML = "";
+            //清除二维码
             this.isShowFCode = false;
             var c = document.getElementById("QCImg");
             var cxt = c.getContext("2d");
             cxt.clearRect(0, 0, c.width, c.height);
         },
         downMate(curId) {
-            // console.log("下载素材啦！mateId = " + curId);
+            //下载素材
+            console.log("下载素材啦！mateId = " + curId);
+            var obj = this.matelist.find(function(x) {
+                return x.id == curId;
+            });
+            var CurCopyText = obj.content.replace(/<[^>]*>|/g, "");
+            var CurDownImg = obj.posters;
+            this.CopyMate(CurCopyText);
+            this.$refs.cmate_btn.click();
+            this.DownImg(obj.posters, curId);
+        },
+        CopyMate(CurCopyText) {
+            var clipboard = new Clipboard(".cmate_btn", {
+                text: function() {
+                    return CurCopyText;
+                }
+            });
+            clipboard.on("success", e => {
+                console.log("复制成功");
+                clipboard.destroy();
+            });
+            clipboard.on("error", e => {
+                console.log("该浏览器不支持自动复制");
+                clipboard.destroy();
+            });
+        },
+        DownImg(imgs, curId) {
+            for (let i = 0; i < imgs.length; i++) {
+                downloadIamge(imgs[i]);
+            }
+            function downloadIamge(imgurl) {
+                var url = imgurl;
+                var a = document.createElement("a");
+                var event = new MouseEvent("click");
+                a.download = "FRANGI素材" + curId || "FRANGI素材";
+                a.href = url;
+                a.dispatchEvent(event);
+            }
         }
     }
 };
@@ -372,6 +430,18 @@ export default {
 }
 .QCImgDivShow {
     display: block;
+}
+.FullShare {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 9999;
+}
+.FullShare img {
+    height: 100%;
+    width: 100%;
 }
 /* .nqrCode {
     position: fixed;

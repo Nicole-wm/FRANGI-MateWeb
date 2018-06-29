@@ -51,9 +51,9 @@ const wxApi = {
       cancel: function () {}
     };
     if (CurData) {
-       sharedata.link = CurData.link;
-	}
-	console.log(sharedata);
+      sharedata.desc = CurData.desc;
+      sharedata.link = CurData.link;
+    }
     wx.onMenuShareAppMessage(sharedata);
     wx.onMenuShareTimeline(sharedata);
     wx.hideMenuItems({

@@ -1,6 +1,6 @@
 <template>
   <div class="page-content">
-    <div class="app-init">
+    <div class="app-init clear">
       <router-view></router-view>
     </div>
     <footer class="footer clear" v-bind:class="{ 'leave': !$route.meta.navShow }">

@@ -117,9 +117,9 @@ export default {
 </script>
 
 <style>
-.typeContent {
+/* .typeContent {
     margin-bottom: 4.5rem;
-}
+} */
 .cateUl {
     font-size: 0.875rem;
     text-align: center;
@@ -140,9 +140,9 @@ export default {
     border-bottom: 0.1rem solid #bf9b5f;
 }
 
-.typediv {
+/* .typediv {
     margin-bottom: 3.125rem;
-}
+} */
 
 .typeUl li {
     position: relative;
@@ -168,5 +168,8 @@ export default {
     bottom: 0.5rem;
     color: #fff;
     text-shadow: 1px 1px 1px #353535;
+}
+.typeList{
+    margin-bottom: 4.5rem;
 }
 </style>

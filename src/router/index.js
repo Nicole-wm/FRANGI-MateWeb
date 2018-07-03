@@ -51,8 +51,13 @@ export default new Router({
       },
       component(resolve) {
         require(['@/views/error/110.vue'], resolve)
-      },
+      }
+    },
+    {
+      path: '*',
+      component(resolve) {
+        require(['@/views/error/404.vue'], resolve)
+      }
     }
   ]
 })
-

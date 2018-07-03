@@ -46,7 +46,7 @@ const wxApi = {
       title: 'FRANGI芙蓉肌_素材中心',
       desc: '坚持使用天然珍贵的原料，运用现代发酵与纳米科技，为东方女性定制真实可见的美。',
       link: window.location.host,
-      imgUrl: 'http://mateweb.frangi.cn/shareIco.png',
+      imgUrl: '/static/img/shareIco.png',
       success: function () {},
       cancel: function () {}
     };

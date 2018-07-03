@@ -3,7 +3,7 @@
         <p v-if="ShowMateFlag" class="nocontent_mess">暂无素材</p>
         <div class="mateContent" v-if="!ShowMateFlag">
             <scroller :on-refresh="refresh" :on-infinite="infinite" ref="my_scroller">
-                <div class="matediv" v-for="mate in matelist" v-bind:key="mate.id">
+                <div class="matediv" v-for="mate in matelist" v-bind:key="mate.id" @click="selectMate(mate)">
                     <span class="mate_name" v-html="mate.content">
                     </span>
                     <ul class="mate_img">
@@ -15,9 +15,9 @@
                     <div class="mate_opear">
                         <span class="mo_like heart" :class="{'heartAnimation':mate.islike==true}" @click="clickLike(mate)"></span>
                         <span class="mo_list">
-                            <span class="mo_down" @click="downMate(mate.id)">下载图文</span>
-                            <span class="mo_share" @click="shareMate(mate)">分享</span>
-                            <span class="mo_ewm" @click="makeCode(mate.id)">生成二维码</span>
+                            <span class="mo_down" @click="downMate(mate.id)">下载文字</span>
+                            <!-- <span class="mo_share" @click="shareMate(mate)">分享</span> -->
+                            <span class="mo_ewm" @click="makeCode(mate.id)">分享</span>
                         </span>
                     </div>
                 </div>
@@ -32,11 +32,14 @@
                 <div slot="loading">loading...</div>
             </slider>
         </div>
-        <div class="qrCode" v-if="isShowFCode">
-            <qriously class="qrCode_code" id="curcode" :value="initUrl" :size="codeSize" />
-        </div>
-        <div class="QCImgDiv" v-bind:class="{ 'QCImgDivShow':isShowFCode}" @click='onTapCode'>
-            <canvas id="QCImg"></canvas>
+        <div class="codeAll">
+            <div class="qrCode" v-if="isShowFCode">
+                <qriously class="qrCode_code" id="curcode" :value="initUrl" :size="codeSize" />
+            </div>
+            <div class="QCImgDiv">
+                <canvas id="QCImg"></canvas>
+            </div>
+            <div class="scanPayImg" id="scanPayImg" ref="scanPayImg" v-bind:class="{ 'QCImgDivShow':isShowFCode}" @click='onTapCode'></div>
         </div>
     </div>
 </template>
@@ -73,7 +76,7 @@ export default {
             GetMateUrl: "/api/mate/mate_list.php",
             UpdateMateUrl: "/api/mate/mate_update.php",
             DownMateUrl: "/api/mate/mate_down.php",
-            initUrl: window.location.host,
+            initUrl: "http://mateweb.frangi.cn",
             codeSize: screen.width / 3
         };
     },
@@ -205,8 +208,18 @@ export default {
             var _this = this;
             this.pages = [];
             posters.forEach(function(item) {
-                var curimg = { style: { background: "url(" + item + ")" } };
-                _this.pages.push(curimg);
+                // var curimg = { style: { background: "url(" + item + ")" } };
+                // _this.pages.push(curimg);
+                var sliderImg = {
+                    html:
+                        '<div class="slider_img"><img src="' +
+                        item +
+                        '"></div>',
+                    style: {
+                        background: "#000"
+                    }
+                };
+                _this.pages.push(sliderImg);
             });
             this.sliderinit.currentPage = index * 1;
             this.isShowFScreen = true;
@@ -231,6 +244,18 @@ export default {
         },
         makeCode(curId) {
             //生成二维码
+            var getPixelRatio = function(context) {
+                var backingStore =
+                    context.backingStorePixelRatio ||
+                    context.webkitBackingStorePixelRatio ||
+                    context.mozBackingStorePixelRatio ||
+                    context.msBackingStorePixelRatio ||
+                    context.oBackingStorePixelRatio ||
+                    context.backingStorePixelRatio ||
+                    1;
+                return (window.devicePixelRatio || 1) / backingStore;
+            };
+
             let shareUrl = this.initUrl + "/matelist/all/" + curId;
             this.initUrl = shareUrl;
             this.isShowFCode = true;
@@ -240,20 +265,22 @@ export default {
             oC.width = curw;
             oC.height = curh;
             var oGC = oC.getContext("2d");
+            var ratio = getPixelRatio(oGC);
             var yImg = new Image();
             yImg.onload = function() {
                 var imgW = this.width;
                 var imgH = this.height;
                 if (curw < imgW) {
-                    oC.width = curw;
-                    oC.height = curw * imgH / imgW;
+                    oC.width = curw * ratio;
+                    oC.height = curw * imgH / imgW * ratio;
                 } else {
-                    oC.width = imgW;
-                    oC.height = imgH;
+                    oC.width = imgW * ratio;
+                    oC.height = imgH * ratio;
                 }
                 draw(this);
             };
             yImg.src = "/static/img/codebg.jpg";
+            var _self = this;
             function draw(obj) {
                 var code_width = oC.width / 3;
                 var code_height = code_width;
@@ -270,6 +297,15 @@ export default {
                     code_width,
                     code_height
                 );
+                function convertCanvasToImage(canvas) {
+                    var image = new Image();
+                    image.src = canvas.toDataURL("image/png");
+                    return image;
+                }
+                var mycanvas1 = document.getElementById("QCImg");
+                var img = convertCanvasToImage(mycanvas1);
+                _self.$refs.scanPayImg.html = "";
+                _self.$refs.scanPayImg.append(img);
             }
         },
         onTapCode(data) {
@@ -290,6 +326,7 @@ export default {
             this.CopyMate(CurCopyText);
             this.$refs.cmate_btn.click();
             this.DownImg(obj.posters, curId);
+            alert("素材文字已复制！");
         },
         CopyMate(CurCopyText) {
             var clipboard = new Clipboard(".cmate_btn", {
@@ -312,12 +349,13 @@ export default {
             }
             function downloadIamge(imgurl) {
                 var url = imgurl;
-                var a = document.createElement("a");
-                var event = new MouseEvent("click");
-                a.download = "FRANGI素材" + curId || "FRANGI素材";
-                a.href = url;
-                a.dispatchEvent(event);
             }
+        },
+        selectMate(curmate) {
+            this.$router.push({
+                name: "matelist",
+                params: { tid: "all", mid: curmate.id }
+            });
         }
     }
 };
@@ -330,7 +368,7 @@ export default {
 .mateList {
     height: 100%;
     width: 100%;
-    background-color: #fff;
+    background-color: #ffffff;
 }
 .mateContent {
     width: 100%;
@@ -418,18 +456,10 @@ export default {
     z-index: 9999;
 }
 .FullScreen .slider-item {
-    z-index: 9999;
+    z-index: 5000;
     background-repeat: no-repeat !important;
     background-position: center !important;
     background-size: contain !important;
-}
-.QCImgDiv {
-    display: none;
-    background-color: #f0f3f2;
-    z-index: 10000;
-}
-.QCImgDivShow {
-    display: block;
 }
 .FullShare {
     position: fixed;
@@ -440,41 +470,25 @@ export default {
     z-index: 9999;
 }
 .FullShare img {
-    height: 100%;
     width: 100%;
 }
-/* .nqrCode {
-    position: fixed;
-    top: 0;
-    left: 0;
-    margin: 0;
-}
-.nqrCodeShow {
-    height: 100%;
-    background-color: #f0f3f2;
-    z-index: 10000;
-} 
-.qrCode {
+.QCImgDiv,
+.scanPayImg {
+    display: none;
     background-color: #f0f3f2;
     z-index: 10000;
 }
-.qrCode_content {
-    position: relative;
+.scanPayImg img {
     width: 100%;
 }
-.qrCode .qrCode_content {
-    position: relative;
+.QCImgDivShow {
+    display: block;
+}
+.slider_img {
     width: 100%;
 }
-.qrCode_img {
-    width: 100%;
-    height: 100%;
+.slider_img img {
+    max-width: 100%;
+    height: auto;
 }
-.qrCode_code {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    opacity: 0.75;
-}*/
 </style>
